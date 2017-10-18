@@ -241,7 +241,7 @@ any:get_score_by_formula(const id, const iNum, const szFormula[])
 		case '7': return g_ePlayerData[id][PDATA_DAMAGE]
 		case '8': return g_ePlayerData[id][PDATA_KDRATIO]
 		case '9': return g_ePlayerData[id][PDATA_KDRATIO_SB]
-		case 'h': return g_ePlayerData[id][PDATA_HSRATIO]
+		case 'а': return g_ePlayerData[id][PDATA_HSRATIO]
 	}
 	
 	return 0
