@@ -234,8 +234,8 @@ any:get_score_by_formula(const id, const iNum, const szFormula[])
 		case '0': return g_ePlayerData[id][PDATA_WINS]
 		case '1': return g_ePlayerData[id][PDATA_KILLS]
 		case '2': return g_ePlayerData[id][PDATA_KILLS_SB]
-		case '3': return g_ePlayerData[id][PDATA_DEATHS]
-		case '4': return g_ePlayerData[id][PDATA_DEATHS_SB]
+		case '3': return g_ePlayerData[id][PDATA_DEATHS] * -1
+		case '4': return g_ePlayerData[id][PDATA_DEATHS_SB] * -1
 		case '5': return g_ePlayerData[id][PDATA_HEADSHOTS]
 		case '6': return g_ePlayerData[id][PDATA_HITS]
 		case '7': return g_ePlayerData[id][PDATA_DAMAGE]
