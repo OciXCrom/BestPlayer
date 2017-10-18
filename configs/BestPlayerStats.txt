@@ -1,0 +1,14 @@
+<body bgcolor=#000000>
+<hr noshade>
+<font color=white face="Comic Sans MS" size=5><center>Here are your stats for this <font color=lime>$map$</font> match:
+<hr noshade>
+<div align=left>- Kills: <font color=magenta>$kills$</font>
+<br>- Deaths: <font color=magenta>$deaths$</font>
+<br>- Headshots: <font color=magenta>$headshots$</font>
+<br>- Hits: <font color=magenta>$hits$</font>
+<br>- Damage: <font color=magenta>$damage$</font>
+<br>- KD Ratio: <font color=magenta>$kdratio$</font>
+<br>- HS Ratio: <font color=magenta>$hsratio$</font></div>
+<hr noshade>
+You have been the best player for a total of <font color=gold>$wins$ times</font>.
+<hr noshade>
