@@ -9,6 +9,7 @@
 #define MAX_HEADER_LENGTH 32
 #define MAX_FORMULA_CYCLES 10
 
+#define ARG_MAP "$map$"
 #define ARG_NAME "$name$"
 #define ARG_WINS "$wins$"
 #define ARG_KILLS "$kills$"
@@ -21,7 +22,6 @@
 #define ARG_KDRATIO "$kdratio$"
 #define ARG_KDRATIO_SB "$kdratio_sb$"
 #define ARG_HSRATIO "$hsratio$"
-#define ARG_MAP "$map$"
 
 enum _:Cvars
 {
@@ -49,7 +49,7 @@ enum _:PlayerData
 }
 
 new g_eCvars[Cvars], g_iSaveType, g_iVault
-new g_ePlayerData[33][PlayerData], g_szStats[MAX_MOTD_LENGTH]
+new g_ePlayerData[33][PlayerData], g_szStats[MAX_MOTD_LENGTH], g_szMap[32]
 
 public plugin_init()
 {
@@ -68,6 +68,7 @@ public plugin_init()
 	g_eCvars[bpm_motd_header] = register_cvar("bpm_motd_header", "Best Player: $name$")
 	g_eCvars[bpm_stats_header] = register_cvar("bpm_stats_header", "Player Stats: $name$")
 	g_eCvars[bpm_save_type] = register_cvar("bpm_save_type", "0")
+	get_mapname(g_szMap, charsmax(g_szMap))
 	g_iVault = nvault_open("BestPlayer")
 }
 
@@ -241,26 +242,22 @@ any:get_score_by_formula(const id, const iNum, const szFormula[])
 		case '7': return g_ePlayerData[id][PDATA_DAMAGE]
 		case '8': return g_ePlayerData[id][PDATA_KDRATIO]
 		case '9': return g_ePlayerData[id][PDATA_KDRATIO_SB]
-		case 'а': return g_ePlayerData[id][PDATA_HSRATIO]
+		case 'a': return g_ePlayerData[id][PDATA_HSRATIO]
 	}
 	
 	return 0
 }
 
 apply_replacements(const id, szMessage[], const iLen)
-{
-	static szBuffer[32]
-	
+{	
+	if(has_argument(szMessage, ARG_MAP))
+		replace_all(szMessage, iLen, ARG_MAP, g_szMap)
+		
 	if(has_argument(szMessage, ARG_NAME))
 	{
+		static szBuffer[32]
 		get_user_name(id, szBuffer, charsmax(szBuffer))
 		replace_all(szMessage, iLen, ARG_NAME, szBuffer)
-	}
-	
-	if(has_argument(szMessage, ARG_MAP))
-	{
-		get_mapname(szBuffer, charsmax(szBuffer))
-		replace_all(szMessage, iLen, ARG_MAP, szBuffer)
 	}
 	
 	if(has_argument(szMessage, ARG_WINS))
