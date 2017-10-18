@@ -3,8 +3,10 @@
 #include <nvault>
 
 #define PLUGIN_VERSION "1.0"
-#define MOTD_FILE "addons/amxmodx/configs/BestPlayer.txt"
+#define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
+#define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
+#define MAX_HEADER_LENGTH 32
 #define MAX_FORMULA_CYCLES 10
 
 #define ARG_NAME "$name$"
@@ -26,6 +28,7 @@ enum _:Cvars
 	bpm_formula,
 	bpm_min_players,
 	bpm_motd_header,
+	bpm_stats_header,
 	bpm_save_type
 }
 
@@ -46,7 +49,7 @@ enum _:PlayerData
 }
 
 new g_eCvars[Cvars], g_iSaveType, g_iVault
-new g_ePlayerData[33][PlayerData]
+new g_ePlayerData[33][PlayerData], g_szStats[MAX_MOTD_LENGTH]
 
 public plugin_init()
 {
@@ -57,10 +60,13 @@ public plugin_init()
 	register_event("DeathMsg", "OnPlayerKilled", "a")
 	register_message(SVC_INTERMISSION, "OnIntermission")
 	register_logevent("OnRestartRound", 2, "0=World triggered", "1&Restart_Round_")
+	register_clcmd("say /mystats", "Cmd_MyStats")
+	register_clcmd("say_team /mystats", "Cmd_MyStats")
 	
 	g_eCvars[bpm_formula] = register_cvar("bpm_formula", "157")
 	g_eCvars[bpm_min_players] = register_cvar("bpm_min_players", "6")
 	g_eCvars[bpm_motd_header] = register_cvar("bpm_motd_header", "Best Player: $name$")
+	g_eCvars[bpm_stats_header] = register_cvar("bpm_stats_header", "Player Stats: $name$")
 	g_eCvars[bpm_save_type] = register_cvar("bpm_save_type", "0")
 	g_iVault = nvault_open("BestPlayer")
 }
@@ -98,6 +104,22 @@ public client_infochanged(id)
 		use_vault(id, 0, szOldName)
 		use_vault(id, 1, szNewName)
 	}
+}
+
+public Cmd_MyStats(id)
+{
+	if(!g_szStats[0])
+		LoadFileForMe(MOTD_STATS, g_szStats, charsmax(g_szStats))
+		
+	static szMotd[MAX_MOTD_LENGTH]
+	new szHeader[MAX_HEADER_LENGTH]
+	copy(szMotd, charsmax(szMotd), g_szStats)
+	get_pcvar_string(g_eCvars[bpm_stats_header], szHeader, charsmax(szHeader))
+	calculate_stats(id)
+	apply_replacements(id, szMotd, charsmax(szMotd))
+	apply_replacements(id, szHeader, charsmax(szHeader))
+	show_motd(id, szMotd, szHeader)
+	return PLUGIN_HANDLED
 }
 
 public OnRestartRound()
@@ -150,7 +172,7 @@ public OnIntermission()
 	for(new i, j, iPlayer, iScore, any:iBestScore; i < iPnum; i++)
 	{
 		iPlayer = iPlayers[i]
-		apply_final_scores(iPlayer)
+		calculate_stats(iPlayer)
 		
 		for(j = 0; j < iLen; j++)
 		{
@@ -192,8 +214,8 @@ public OnIntermission()
 	
 	g_ePlayerData[iBest][PDATA_WINS]++
 	
-	new szMotd[MAX_MOTD_LENGTH], szHeader[32]
-	LoadFileForMe(MOTD_FILE, szMotd, charsmax(szMotd))
+	new szMotd[MAX_MOTD_LENGTH], szHeader[MAX_HEADER_LENGTH]
+	LoadFileForMe(MOTD_BEST, szMotd, charsmax(szMotd))
 	get_pcvar_string(g_eCvars[bpm_motd_header], szHeader, charsmax(szHeader))
 	apply_replacements(iBest, szMotd, charsmax(szMotd))
 	apply_replacements(iBest, szHeader, charsmax(szHeader))
@@ -317,7 +339,7 @@ get_user_saveinfo(const id, szInfo[], const iLen)
 	}
 }
 
-apply_final_scores(const id)
+calculate_stats(const id)
 {
 	g_ePlayerData[id][PDATA_KILLS_SB] = get_user_frags(id)
 	g_ePlayerData[id][PDATA_DEATHS_SB] = get_user_deaths(id)
