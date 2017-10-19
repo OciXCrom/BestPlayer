@@ -1,5 +1,4 @@
-<body bgcolor=#000000>
-<hr noshade>
+<body bgcolor=#000000><hr noshade>
 <font color=white face="Comic Sans MS" size=5><center>The best player of this <font color=lime>$map$</font> match is:
 <hr noshade>
 <font color=royalblue size=10>$name$</font>
@@ -8,4 +7,6 @@
 <br>He managed to land <font color=magenta>$hits$ successfull hits</font>, dealing <font color=magenta>$damage$ damage</font>.
 <hr noshade>
 <font color=royalblue>$name$</font> has been the best player for a total of <font color=gold>$wins$ times</font>.
+<hr noshade>
+<img src="https://raw.githubusercontent.com/OciXCrom/BestPlayer/images/win_$best_team$.png"></img>
 <hr noshade>

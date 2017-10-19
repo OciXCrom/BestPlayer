@@ -2,7 +2,10 @@
 #include <hamsandwich>
 #include <nvault>
 
-#define PLUGIN_VERSION "1.0"
+//Comment if you're not using Counter-Strike.
+#define USE_CSTRIKE
+
+#define PLUGIN_VERSION "1.1"
 #define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
 #define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
@@ -23,11 +26,30 @@
 #define ARG_KDRATIO_SB "$kdratio_sb$"
 #define ARG_HSRATIO "$hsratio$"
 
+#if defined USE_CSTRIKE
+	#include <cstrike>
+	#define ARG_CTSCORE "$ctscore$"
+	#define ARG_TSCORE "$tscore$"
+	#define ARG_BEST_TEAM "$best_team$"
+	#define get_user_deaths cs_get_user_deaths
+	
+new g_iTeamScore[3]
+new const g_szTeams[][] = { "draw", "ct", "t" }
+new const g_szTeamNames[][] = { "", "TERRORIST", "CT" }
+#endif
+
+#if defined client_disconnected
+	#define client_disconnect client_disconnected
+#endif
+
 enum _:Cvars
 {
 	bpm_formula,
 	bpm_min_players,
 	bpm_motd_header,
+	#if defined USE_CSTRIKE
+	bpm_obey_team,
+	#endif
 	bpm_stats_header,
 	bpm_save_type
 }
@@ -56,6 +78,10 @@ public plugin_init()
 	register_plugin("Best Player MOTD", PLUGIN_VERSION, "OciXCrom")
 	register_cvar("CRXBestPlayer", PLUGIN_VERSION, FCVAR_SERVER|FCVAR_SPONLY|FCVAR_UNLOGGED)
 	
+	#if defined USE_CSTRIKE
+	register_event("TeamScore", "OnTeamScore", "a")
+	#endif
+	
 	RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage", 1)
 	register_event("DeathMsg", "OnPlayerKilled", "a")
 	register_message(SVC_INTERMISSION, "OnIntermission")
@@ -66,6 +92,9 @@ public plugin_init()
 	g_eCvars[bpm_formula] = register_cvar("bpm_formula", "157")
 	g_eCvars[bpm_min_players] = register_cvar("bpm_min_players", "6")
 	g_eCvars[bpm_motd_header] = register_cvar("bpm_motd_header", "Best Player: $name$")
+	#if defined USE_CSTRIKE
+	g_eCvars[bpm_obey_team] = register_cvar("bpm_obey_team", "0")
+	#endif
 	g_eCvars[bpm_stats_header] = register_cvar("bpm_stats_header", "Player Stats: $name$")
 	g_eCvars[bpm_save_type] = register_cvar("bpm_save_type", "0")
 	get_mapname(g_szMap, charsmax(g_szMap))
@@ -157,10 +186,40 @@ public OnPlayerKilled()
 	}
 }
 
+#if defined USE_CSTRIKE
+public OnTeamScore()
+{
+	new szTeam[3], iScore = read_data(2)
+	read_data(1, szTeam, charsmax(szTeam))
+	g_iTeamScore[szTeam[0] == 'C' ? 1 : 2] = iScore
+}
+#endif
+
 public OnIntermission()
 {
 	new iPlayers[32], iPnum
+	
+	#if defined USE_CSTRIKE
+	new iTeam = get_pcvar_num(g_eCvars[bpm_obey_team])
+	
+	switch(iTeam)
+	{
+		case 0: get_players(iPlayers, iPnum)
+		case 1, 2: get_players(iPlayers, iPnum, "e", g_szTeamNames[iTeam])
+		case 3:
+		{
+			new iWinTeam = get_winning_team()
+			
+			switch(iWinTeam)
+			{
+				case 0: get_players(iPlayers, iPnum)
+				case 1, 2: get_players(iPlayers, iPnum, "e", g_szTeamNames[iWinTeam])
+			}
+		}
+	}
+	#else
 	get_players(iPlayers, iPnum)
+	#endif
 	
 	if(!iPnum || iPnum < get_pcvar_num(g_eCvars[bpm_min_players]))
 		return PLUGIN_CONTINUE
@@ -292,7 +351,23 @@ apply_replacements(const id, szMessage[], const iLen)
 		
 	if(has_argument(szMessage, ARG_HSRATIO))
 		replace_num_f(szMessage, iLen, ARG_HSRATIO, g_ePlayerData[id][PDATA_HSRATIO])
+		
+	#if defined USE_CSTRIKE
+	if(has_argument(szMessage, ARG_CTSCORE))
+		replace_num(szMessage, iLen, ARG_CTSCORE, g_iTeamScore[1])
+		
+	if(has_argument(szMessage, ARG_TSCORE))
+		replace_num(szMessage, iLen, ARG_TSCORE, g_iTeamScore[2])
+		
+	if(has_argument(szMessage, ARG_BEST_TEAM))
+		replace_all(szMessage, iLen, ARG_BEST_TEAM, g_szTeams[get_winning_team()])
+	#endif
 }
+
+#if defined USE_CSTRIKE
+get_winning_team()
+	return g_iTeamScore[1] == g_iTeamScore[2] ? 0 : g_iTeamScore[1] > g_iTeamScore[2] ? 1 : 2
+#endif
 
 reset_player_stats(const id)
 {
