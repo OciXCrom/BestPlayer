@@ -5,7 +5,7 @@
 //Comment if you're not using Counter-Strike.
 #define USE_CSTRIKE
 
-#define PLUGIN_VERSION "1.1"
+#define PLUGIN_VERSION "1.1.1"
 #define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
 #define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
@@ -429,8 +429,14 @@ replace_num(szMessage[], const iLen, const szPlaceholder[], const iNum)
 
 replace_num_f(szMessage[], const iLen, const szPlaceholder[], const Float:fNum)
 {
-	static szBuffer[32]
+	static szBuffer[32], i
 	formatex(szBuffer, charsmax(szBuffer), "%.2f", fNum)
+	i = strlen(szBuffer) - 1
+	
+	while(szBuffer[i] == '0' && szBuffer[i - 1] != '.')
+		--i
+		
+	szBuffer[i + 1] = EOS
 	replace_all(szMessage, iLen, szPlaceholder, szBuffer)
 }
 
