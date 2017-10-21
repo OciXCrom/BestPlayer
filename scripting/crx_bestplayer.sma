@@ -5,7 +5,7 @@
 //Comment if you're not using Counter-Strike.
 #define USE_CSTRIKE
 
-#define PLUGIN_VERSION "1.1.1"
+#define PLUGIN_VERSION "1.1.2"
 #define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
 #define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
@@ -34,8 +34,8 @@
 	#define get_user_deaths cs_get_user_deaths
 	
 new g_iTeamScore[3]
-new const g_szTeams[][] = { "draw", "ct", "t" }
-new const g_szTeamNames[][] = { "", "TERRORIST", "CT" }
+new const g_szTeams[][] = { "draw", "t", "ct" }
+new const g_szTeamNames[][] = { "", "CT", "TERRORIST" }
 #endif
 
 #if defined client_disconnected
@@ -191,7 +191,7 @@ public OnTeamScore()
 {
 	new szTeam[3], iScore = read_data(2)
 	read_data(1, szTeam, charsmax(szTeam))
-	g_iTeamScore[szTeam[0] == 'C' ? 1 : 2] = iScore
+	g_iTeamScore[szTeam[0] == 'C' ? 2 : 1] = iScore
 }
 #endif
 
@@ -353,11 +353,11 @@ apply_replacements(const id, szMessage[], const iLen)
 		replace_num_f(szMessage, iLen, ARG_HSRATIO, g_ePlayerData[id][PDATA_HSRATIO])
 		
 	#if defined USE_CSTRIKE
-	if(has_argument(szMessage, ARG_CTSCORE))
-		replace_num(szMessage, iLen, ARG_CTSCORE, g_iTeamScore[1])
-		
 	if(has_argument(szMessage, ARG_TSCORE))
-		replace_num(szMessage, iLen, ARG_TSCORE, g_iTeamScore[2])
+		replace_num(szMessage, iLen, ARG_TSCORE, g_iTeamScore[1])
+		
+	if(has_argument(szMessage, ARG_CTSCORE))
+		replace_num(szMessage, iLen, ARG_CTSCORE, g_iTeamScore[2])
 		
 	if(has_argument(szMessage, ARG_BEST_TEAM))
 		replace_all(szMessage, iLen, ARG_BEST_TEAM, g_szTeams[get_winning_team()])
