@@ -5,7 +5,7 @@
 //Comment if you're not using Counter-Strike.
 #define USE_CSTRIKE
 
-#define PLUGIN_VERSION "1.1.2"
+#define PLUGIN_VERSION "1.2"
 #define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
 #define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
@@ -85,7 +85,7 @@ public plugin_init()
 	RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage", 1)
 	register_event("DeathMsg", "OnPlayerKilled", "a")
 	register_message(SVC_INTERMISSION, "OnIntermission")
-	register_logevent("OnRestartRound", 2, "0=World triggered", "1&Restart_Round_")
+	register_logevent("OnRestartRound", 2, "0=World triggered", "1&Restart_Round")
 	register_clcmd("say /mystats", "Cmd_MyStats")
 	register_clcmd("say_team /mystats", "Cmd_MyStats")
 	
@@ -446,3 +446,12 @@ send_intermission()
 	write_string("")
 	message_end()
 }
+
+public plugin_natives()
+{
+	register_library("bestplayer")
+	register_native("bpm_force_intermission", "_bpm_force_intermission")
+}
+
+public _bpm_force_intermission(iPlugin, iParams)
+	OnIntermission()
