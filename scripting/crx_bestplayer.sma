@@ -5,11 +5,11 @@
 //Comment if you're not using Counter-Strike.
 #define USE_CSTRIKE
 
-#define PLUGIN_VERSION "1.2"
+#define PLUGIN_VERSION "1.2.1"
 #define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
 #define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
-#define MAX_HEADER_LENGTH 32
+#define MAX_HEADER_LENGTH 175
 #define MAX_FORMULA_CYCLES 10
 
 #define ARG_MAP "$map$"
