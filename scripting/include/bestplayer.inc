@@ -2,8 +2,6 @@
     #endinput
 #endif
 
-#include <cshop_settings>
-
 #define _bestplayer_included
 
 /** 
