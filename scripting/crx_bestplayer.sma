@@ -5,7 +5,7 @@
 //Comment if you're not using Counter-Strike.
 #define USE_CSTRIKE
 
-#define PLUGIN_VERSION "1.2.1"
+#define PLUGIN_VERSION "1.2.2"
 #define MOTD_BEST "addons/amxmodx/configs/BestPlayer.txt"
 #define MOTD_STATS "addons/amxmodx/configs/BestPlayerStats.txt"
 #define MAX_MOTD_LENGTH 1536
@@ -107,7 +107,7 @@ public plugin_cfg()
 public plugin_end()
 	nvault_close(g_iVault)
 
-public client_putinserver(id)
+public client_connect(id)
 {
 	reset_player_stats(id)	
 	get_user_saveinfo(id, g_ePlayerData[id][PDATA_INFO], charsmax(g_ePlayerData[][PDATA_INFO]))
